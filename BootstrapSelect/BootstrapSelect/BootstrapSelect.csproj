@@ -52,6 +52,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="BootstrapSelectControl.htm" />
     <Content Include="BootstrapSelect\css\bootstrap-select.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -457,7 +458,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-
   <Target Name="Build">
     <AspectizeCompileLibraryTask ProjectPath="$(MSBuildProjectFullPath)" TargetAppName="BootstrapSelect" OutputPath="$(OutputPath)">
     </AspectizeCompileLibraryTask>
@@ -466,6 +466,5 @@
     <Exec Command="rd /s /q $(OutputPath)" Condition="Exists($(OutputPath))" />
   </Target>
   <Target Name="Rebuild" DependsOnTargets="Clean;Build">
-    
   </Target>
 </Project>
