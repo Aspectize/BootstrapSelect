@@ -181,8 +181,7 @@ Global.BootstrapSelectBuilder = {
                 var currentData = controlInfo.PropertyBag.CurrentData;
                 var currentValue = controlInfo.PropertyBag.CurrentData;
 
-                //Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', currentData);
-
+                Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentData: currentData });
                 
             });
 
