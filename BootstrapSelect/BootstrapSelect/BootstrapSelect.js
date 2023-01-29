@@ -40,7 +40,7 @@ Global.BootstrapSelectBuilder = {
 
             if (initCalled) {
 
-                var currentDisplay = null;
+                var currentDisplay = isMultiValuedList ? [] : null;
                 var currentValue = isMultiValuedList ? [] : null;
                 var currentData = isMultiValuedList ? [] : null;;
 
@@ -51,21 +51,23 @@ Global.BootstrapSelectBuilder = {
 
                         if (isMultiValuedList) {
 
+                            currentDisplay.push(option.text);
                             currentValue.push(option.value);
                             currentData.push(option.aasData);
 
                         } else {
 
+                            currentDisplay = option.text;
                             currentValue = option.value;
                             currentData = option.aasData;
                             break;
                         }
                     }
                 }
-
+                
                 Aspectize.UiExtensions.ChangeProperty(control, 'CurrentValue', currentValue);
                 Aspectize.UiExtensions.ChangeProperty(control, 'CurrentData', currentData);
-                Aspectize.UiExtensions.ChangeProperty(control, 'CurrentDisplay', currentDisplay);
+                Aspectize.UiExtensions.ChangeProperty(control, 'CurrentDisplay', isMultiValuedList ? currentDisplay.join(',') : currentDisplay);
             }
         }
 
@@ -179,9 +181,10 @@ Global.BootstrapSelectBuilder = {
                 updateSelectedValues();
 
                 var currentData = controlInfo.PropertyBag.CurrentData;
-                var currentValue = controlInfo.PropertyBag.CurrentData;
+                var currentValue = controlInfo.PropertyBag.CurrentValue;
+                var currentDisplay = controlInfo.PropertyBag.CurrentDisplay;
 
-                Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentData: currentData });
+                Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentDisplay: currentDisplay, CurrentData: currentData });
                 
             });
 
