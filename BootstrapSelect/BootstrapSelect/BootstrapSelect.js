@@ -24,10 +24,7 @@ Global.BootstrapSelectBuilder = {
                 for (var n = 0; n < control.options.length; n++) {
                     var option = control.options[n];
 
-                    if (option.selected) {
-
-                        selectedValues[option.value] = { Selected: true, Data: option.aasData };
-                    }
+                    selectedValues[option.value] = { Selected: option.selected, Data: option.aasData };
                 }
 
                 savedChangeHandler(control, { IsEventArg: true, Value: selectedValues });
@@ -99,7 +96,6 @@ Global.BootstrapSelectBuilder = {
         controlInfo.InitList = function (control) {
 
             if (initCalled) return;
-            initCalled = true;
 
             var options = {};
 
@@ -188,16 +184,14 @@ Global.BootstrapSelectBuilder = {
                 
             });
 
+            initCalled = true;
         };
 
         controlInfo.RemoveOptions = function (control) {
             initCalled = false;
 
-            currentValue = null;
-            currentDisplay = null;
-            currentData = null;
-
             $(control).selectpicker('destroy');
+            $(control).empty();
         };
 
         controlInfo.AddChangeHandler = function (control, changeHandler) {
@@ -249,32 +243,35 @@ Global.BootstrapSelectBuilder = {
 
             var option = control.options.namedItem(control.id + '-' + value);
 
-            var needsRefresh = false;
+            if (option) {
 
-            if (option.text !== newDisplay) {
+                var needsRefresh = false;
 
-                option.text = newDisplay;
-                needsRefresh = true;
-            }
+                if (option.text !== newDisplay) {
 
-            if (option.className !== newDisplayClass) {
-                option.className = newDisplayClass;
-                needsRefresh = true;
-            }
-
-            if (option && option.aasData) {
-                isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
-                var selectedMember = isMultiValuedList ? Aspectize.UiExtensions.GetProperty(control, 'SelectedMember') : false;
-                var isSelected = selectedMember && option.aasData[selectedMember] ? true : false;
-
-                if (option.selected !== isSelected) {
-
-                    option.selected = isSelected;
+                    option.text = newDisplay;
                     needsRefresh = true;
                 }
-            }
 
-            if (needsRefresh) $(control).selectpicker('refresh');
+                if (option.className !== newDisplayClass) {
+                    option.className = newDisplayClass;
+                    needsRefresh = true;
+                }
+
+                if (option.aasData) {
+                    isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
+                    var selectedMember = isMultiValuedList ? Aspectize.UiExtensions.GetProperty(control, 'SelectedMember') : false;
+                    var isSelected = selectedMember && option.aasData[selectedMember] ? true : false;
+
+                    if (option.selected !== isSelected) {
+
+                        option.selected = isSelected;
+                        needsRefresh = true;
+                    }
+                }
+
+                if (needsRefresh) $(control).selectpicker('refresh');
+            }
         };
 
     }
