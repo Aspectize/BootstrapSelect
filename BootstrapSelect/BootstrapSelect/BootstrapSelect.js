@@ -253,7 +253,7 @@ Global.BootstrapSelectBuilder = {
                     needsRefresh = true;
                 }
 
-                if (option.className !== newDisplayClass) {
+                if (option.className !== '' + newDisplayClass) {
                     option.className = newDisplayClass;
                     needsRefresh = true;
                 }
@@ -261,12 +261,16 @@ Global.BootstrapSelectBuilder = {
                 if (option.aasData) {
                     isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
                     var selectedMember = isMultiValuedList ? Aspectize.UiExtensions.GetProperty(control, 'SelectedMember') : false;
-                    var isSelected = selectedMember && option.aasData[selectedMember] ? true : false;
 
-                    if (option.selected !== isSelected) {
+                    if (selectedMember) {
 
-                        option.selected = isSelected;
-                        needsRefresh = true;
+                        var isSelected = option.aasData[selectedMember];
+
+                        if (option.selected !== isSelected) {
+
+                            option.selected = isSelected;
+                            needsRefresh = true;
+                        }
                     }
                 }
 
