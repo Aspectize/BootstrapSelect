@@ -59,6 +59,9 @@
     <Content Include="BootstrapSelect\css\bootstrap-select.min.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="BootstrapSelect\js\Beta3\bootstrap-select.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="BootstrapSelect\js\bootstrap-select.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

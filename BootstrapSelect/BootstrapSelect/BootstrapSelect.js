@@ -61,7 +61,7 @@ Global.BootstrapSelectBuilder = {
                         }
                     }
                 }
-                
+
                 Aspectize.UiExtensions.ChangeProperty(control, 'CurrentValue', currentValue);
                 Aspectize.UiExtensions.ChangeProperty(control, 'CurrentData', currentData);
                 Aspectize.UiExtensions.ChangeProperty(control, 'CurrentDisplay', isMultiValuedList ? currentDisplay.join(',') : currentDisplay);
@@ -72,7 +72,7 @@ Global.BootstrapSelectBuilder = {
 
             control = Aspectize.createElement('select', ownerWindow);
 
-            control.classname = 'selectpicker';
+            //control.className = 'selectpicker';
 
             return control;
         };
@@ -97,7 +97,7 @@ Global.BootstrapSelectBuilder = {
 
             if (initCalled) return;
 
-            var options = {};
+            var bsOptions = {};
 
             //#region multiple
             isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
@@ -107,63 +107,51 @@ Global.BootstrapSelectBuilder = {
                 control.setAttribute('multiple', '');
 
                 var selectedTextFormat = Aspectize.UiExtensions.GetProperty(control, 'SelectedTextFormat');
+                bsOptions.selectedTextFormat = selectedTextFormat;
                 if (selectedTextFormat.startsWith('count')) {
-                    options.selectedTextFormat = selectedTextFormat;
 
-                    var countSelectedText = Aspectize.UiExtensions.GetProperty(control, 'CountSelectedText');
-                    if (countSelectedText) options.countSelectedText = countSelectedText;
+                    bsOptions.countSelectedText = Aspectize.UiExtensions.GetProperty(control, 'CountSelectedText');
                 }
 
-                var noneSelectedText = Aspectize.UiExtensions.GetProperty(control, 'NoneSelectedText'); // un peu comme le NullValueDisplay mais quand rien n'est selectionné
-                if (noneSelectedText) options.noneSelectedText = noneSelectedText;
+                bsOptions.noneSelectedText = Aspectize.UiExtensions.GetProperty(control, 'NoneSelectedText'); // un peu comme le NullValueDisplay mais quand rien n'est selectionné
 
                 //#region actionsBox : selectAll deselectAll buttons
                 if (isMultiValuedList) {
                     var actionsBox = Aspectize.UiExtensions.GetProperty(control, 'ActionsBox');
-                    if (actionsBox) options.actionsBox = true;
-                    if (actionsBox) {
-                        var selectAllText = Aspectize.UiExtensions.GetProperty(control, 'SelectAllText');
-                        if (selectAllText) options.selectAllText = selectAllText;
-                        var deselectAllText = Aspectize.UiExtensions.GetProperty(control, 'DeselectAllText');
-                        if (deselectAllText) options.deselectAllText = deselectAllText;
+                    bsOptions.actionsBox = !!actionsBox;
+                    if (bsOptions.actionsBox) {
+                        bsOptions.selectAllText = Aspectize.UiExtensions.GetProperty(control, 'SelectAllText');
+                        bsOptions.deselectAllText = Aspectize.UiExtensions.GetProperty(control, 'DeselectAllText');
                     }
                 }
                 //#endregion
 
                 //#region maxOptions
                 var maxOptions = Aspectize.UiExtensions.GetProperty(control, 'MaxOptions');
-                if (maxOptions) {
-                    options.maxOptions = maxOptions;
-                    var maxOptionsText = Aspectize.UiExtensions.GetProperty(control, 'MaxOptionsText'); // Max {0}/{1}
-                    if (maxOptionsText) options.maxOptionsText = maxOptionsText;
+                bsOptions.maxOptions = maxOptions;
+                if (maxOptions !== false) {
+                    bsOptions.maxOptionsText = Aspectize.UiExtensions.GetProperty(control, 'MaxOptionsText');  // Max {0}/{1}
                 }
                 //#endregion
             }
             //#endregion
 
             //#region liveSearch
-            var liveSearch = Aspectize.UiExtensions.GetProperty(control, 'LiveSearch');
-            if (liveSearch) { options.liveSearch = true; options.liveSearchNormalize = true; }
-
-            var liveSearchStyle = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchStyle');
-            if (liveSearchStyle) options.liveSearchStyle = liveSearchStyle;  // 'contains' or 'startsWith'
-
-            var liveSearchPlaceholder = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchPlaceholder');
-            if (liveSearchPlaceholder) options.liveSearchPlaceholder = liveSearchPlaceholder;
-
-            var noneResultsText = Aspectize.UiExtensions.GetProperty(control, 'NoneResultsText');
-            if (noneResultsText) options.noneResultsText = noneResultsText;
+            bsOptions.liveSearch = Aspectize.UiExtensions.GetProperty(control, 'LiveSearch');
+            if (bsOptions.liveSearch) {
+                bsOptions.liveSearchNormalize = true;
+                bsOptions.liveSearchStyle = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchStyle');  // 'contains' or 'startsWith'
+                bsOptions.liveSearchPlaceholder = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchPlaceholder');
+                bsOptions.noneResultsText = Aspectize.UiExtensions.GetProperty(control, 'NoneResultsText');;
+            }
             //#endregion
 
-            var header = Aspectize.UiExtensions.GetProperty(control, 'Header');
-            if (header) options.header = header;
-
-            var size = Aspectize.UiExtensions.GetProperty(control, 'Size');
-            if (size) options.size = size;
+            bsOptions.header = Aspectize.UiExtensions.GetProperty(control, 'Header');
+            bsOptions.size = Aspectize.UiExtensions.GetProperty(control, 'Size');
 
             updateCurrentProperties();
 
-            $(control).selectpicker(options);
+            $(control).selectpicker(bsOptions);
 
             $(control).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
 
@@ -181,7 +169,7 @@ Global.BootstrapSelectBuilder = {
                 var currentDisplay = controlInfo.PropertyBag.CurrentDisplay;
 
                 Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentDisplay: currentDisplay, CurrentData: currentData });
-                
+
             });
 
             initCalled = true;
@@ -210,15 +198,29 @@ Global.BootstrapSelectBuilder = {
             var isObject = typeof (value) === 'object';
             var isBitField = !!value.IsBitField;
 
-            for (var n = 0; n < options.length; n++) {
+            if (isBitField || isObject) {
 
-                var option = options[n];
-                var isSelected = isBitField || isObject ? option.value in selectedDataValues : option.value === '' + value;
-                option.selected = isSelected;
-            }      
+                for (var n = 0; n < options.length; n++) {
 
+                    var option = options[n];
+                    var isSelected = option.value in selectedDataValues;
+                    option.selected = isSelected;
+                }
+
+            } else {
+
+                for (var n = 0; n < options.length; n++) {
+
+                    var option = options[n];
+                    if (option.value === value) {
+                        option.selected = true;
+                    }
+                }
+
+            }
             updateCurrentProperties();
-            $(control).selectpicker('refresh');            
+            //$(control).selectpicker('destroy');
+            $(control).selectpicker('refresh');
         };
 
         controlInfo.GetCurrentData = function () {
@@ -236,7 +238,7 @@ Global.BootstrapSelectBuilder = {
                 }
             }
 
-            return selectedData; 
+            return selectedData;
         };
 
         controlInfo.ChangeOption = function (control, value, newDisplay, newDisplayClass) {
@@ -253,7 +255,7 @@ Global.BootstrapSelectBuilder = {
                     needsRefresh = true;
                 }
 
-                if (option.className !== '' + newDisplayClass) {
+                if (option.className !== (newDisplayClass || '')) {
                     option.className = newDisplayClass;
                     needsRefresh = true;
                 }
@@ -274,7 +276,10 @@ Global.BootstrapSelectBuilder = {
                     }
                 }
 
-                if (needsRefresh) $(control).selectpicker('refresh');
+                if (needsRefresh) {
+                    //$(control).selectpicker('destroy');
+                    $(control).selectpicker('refresh');
+                }
             }
         };
 
