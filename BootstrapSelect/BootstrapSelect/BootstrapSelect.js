@@ -189,6 +189,8 @@ Global.BootstrapSelectBuilder = {
 
         controlInfo.SetValue = function (control, value) {
 
+            if (!control.aasDataBindings.SelectedValue) return; // selected values determined by UI and Not Data
+
             var options = control.options;
 
             if (!initCalled || (options.length === 0)) return;
@@ -212,14 +214,11 @@ Global.BootstrapSelectBuilder = {
                 for (var n = 0; n < options.length; n++) {
 
                     var option = options[n];
-                    if (option.value === value) {
-                        option.selected = true;
-                    }
+                    option.selected = (option.value === value);
                 }
 
             }
             updateCurrentProperties();
-            //$(control).selectpicker('destroy');
             $(control).selectpicker('refresh');
         };
 
@@ -232,7 +231,7 @@ Global.BootstrapSelectBuilder = {
             for (var n = 0; n < options.length; n++) {
 
                 var option = options[n];
-                if (options.selected && option.aasData) {
+                if (option.selected && option.aasData) {
 
                     selectedData.push(option.aasData);
                 }
@@ -277,7 +276,6 @@ Global.BootstrapSelectBuilder = {
                 }
 
                 if (needsRefresh) {
-                    //$(control).selectpicker('destroy');
                     $(control).selectpicker('refresh');
                 }
             }
