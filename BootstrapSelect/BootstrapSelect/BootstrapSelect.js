@@ -155,11 +155,31 @@ Global.BootstrapSelectBuilder = {
 
             $(control).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
 
-                var option = control.options[clickedIndex];
-                if (option && option.aasData) {
-                    var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+                if (bsOptions.actionsBox) {
 
-                    if (selectedMember) option.aasData.SetField(selectedMember, isSelected);
+                    var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+                    var options = control.options;
+
+                    if (selectedMember) {
+
+                        for (var n = 0; n < options.length; n++) {
+
+                            var option = options[n];
+                            if (option.aasData) {
+
+                                option.aasData.SetField(selectedMember, option.selected);
+                            }
+                        }
+                    }
+
+                } else {
+
+                    var option = control.options[clickedIndex];
+                    if (option && option.aasData) {
+                        var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+
+                        if (selectedMember) option.aasData.SetField(selectedMember, isSelected);
+                    }
                 }
 
                 updateSelectedValues();
