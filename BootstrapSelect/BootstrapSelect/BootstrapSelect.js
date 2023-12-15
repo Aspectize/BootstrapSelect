@@ -72,8 +72,6 @@ Global.BootstrapSelectBuilder = {
 
             control = Aspectize.createElement('select', ownerWindow);
 
-            //control.className = 'selectpicker';
-
             return control;
         };
 
@@ -192,6 +190,7 @@ Global.BootstrapSelectBuilder = {
 
             });
 
+            document.getElementById(control.id).parentNode.classList.add('form-control');
             initCalled = true;
         };
 
