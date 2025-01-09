@@ -95,6 +95,8 @@ Global.BootstrapSelectBuilder = {
 
             if (initCalled) return;
 
+            window.setTimeout(function () {
+
             var bsOptions = {};
 
             //#region multiple
@@ -192,13 +194,18 @@ Global.BootstrapSelectBuilder = {
 
             document.getElementById(control.id).parentNode.classList.add('form-control');
             initCalled = true;
+
+            }, 10);
+
         };
 
         controlInfo.RemoveOptions = function (control) {
-            initCalled = false;
+            if (initCalled) {
+                initCalled = false;
 
-            $(control).selectpicker('destroy');
-            $(control).empty();
+                $(control).selectpicker('destroy');
+                $(control).empty();
+            }
         };
 
         controlInfo.AddChangeHandler = function (control, changeHandler) {
