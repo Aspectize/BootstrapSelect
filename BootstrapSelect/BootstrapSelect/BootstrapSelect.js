@@ -97,114 +97,115 @@ Global.BootstrapSelectBuilder = {
 
             window.setTimeout(function () {
 
-            var bsOptions = {};
+                var bsOptions = {};
 
-            //#region multiple
-            isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
-            if (isMultiValuedList) {
-                control.aasIsMultiSelector = true;
-
-                control.setAttribute('multiple', '');
-
-                var selectedTextFormat = Aspectize.UiExtensions.GetProperty(control, 'SelectedTextFormat');
-                bsOptions.selectedTextFormat = selectedTextFormat;
-                if (selectedTextFormat.startsWith('count')) {
-
-                    bsOptions.countSelectedText = Aspectize.UiExtensions.GetProperty(control, 'CountSelectedText');
-                }
-
-                bsOptions.noneSelectedText = Aspectize.UiExtensions.GetProperty(control, 'NoneSelectedText'); // un peu comme le NullValueDisplay mais quand rien n'est selectionné
-
-                //#region actionsBox : selectAll deselectAll buttons
+                //#region multiple
+                isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
                 if (isMultiValuedList) {
-                    var actionsBox = Aspectize.UiExtensions.GetProperty(control, 'ActionsBox');
-                    bsOptions.actionsBox = !!actionsBox;
-                    if (bsOptions.actionsBox) {
-                        bsOptions.selectAllText = Aspectize.UiExtensions.GetProperty(control, 'SelectAllText');
-                        bsOptions.deselectAllText = Aspectize.UiExtensions.GetProperty(control, 'DeselectAllText');
+                    control.aasIsMultiSelector = true;
+
+                    control.setAttribute('multiple', '');
+
+                    var selectedTextFormat = Aspectize.UiExtensions.GetProperty(control, 'SelectedTextFormat');
+                    bsOptions.selectedTextFormat = selectedTextFormat;
+                    if (selectedTextFormat.startsWith('count')) {
+
+                        bsOptions.countSelectedText = Aspectize.UiExtensions.GetProperty(control, 'CountSelectedText');
                     }
+
+                    bsOptions.noneSelectedText = Aspectize.UiExtensions.GetProperty(control, 'NoneSelectedText'); // un peu comme le NullValueDisplay mais quand rien n'est selectionné
+
+                    //#region actionsBox : selectAll deselectAll buttons
+                    if (isMultiValuedList) {
+                        var actionsBox = Aspectize.UiExtensions.GetProperty(control, 'ActionsBox');
+                        bsOptions.actionsBox = !!actionsBox;
+                        if (bsOptions.actionsBox) {
+                            bsOptions.selectAllText = Aspectize.UiExtensions.GetProperty(control, 'SelectAllText');
+                            bsOptions.deselectAllText = Aspectize.UiExtensions.GetProperty(control, 'DeselectAllText');
+                        }
+                    }
+                    //#endregion
+
+                    //#region maxOptions
+                    var maxOptions = Aspectize.UiExtensions.GetProperty(control, 'MaxOptions');
+                    bsOptions.maxOptions = maxOptions;
+                    if (maxOptions !== false) {
+                        bsOptions.maxOptionsText = Aspectize.UiExtensions.GetProperty(control, 'MaxOptionsText');  // Max {0}/{1}
+                    }
+                    //#endregion
                 }
                 //#endregion
 
-                //#region maxOptions
-                var maxOptions = Aspectize.UiExtensions.GetProperty(control, 'MaxOptions');
-                bsOptions.maxOptions = maxOptions;
-                if (maxOptions !== false) {
-                    bsOptions.maxOptionsText = Aspectize.UiExtensions.GetProperty(control, 'MaxOptionsText');  // Max {0}/{1}
+                //#region liveSearch
+                bsOptions.liveSearch = Aspectize.UiExtensions.GetProperty(control, 'LiveSearch');
+                if (bsOptions.liveSearch) {
+                    bsOptions.liveSearchNormalize = true;
+                    bsOptions.liveSearchStyle = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchStyle');  // 'contains' or 'startsWith'
+                    bsOptions.liveSearchPlaceholder = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchPlaceholder');
+                    bsOptions.noneResultsText = Aspectize.UiExtensions.GetProperty(control, 'NoneResultsText');;
                 }
                 //#endregion
-            }
-            //#endregion
 
-            //#region liveSearch
-            bsOptions.liveSearch = Aspectize.UiExtensions.GetProperty(control, 'LiveSearch');
-            if (bsOptions.liveSearch) {
-                bsOptions.liveSearchNormalize = true;
-                bsOptions.liveSearchStyle = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchStyle');  // 'contains' or 'startsWith'
-                bsOptions.liveSearchPlaceholder = Aspectize.UiExtensions.GetProperty(control, 'LiveSearchPlaceholder');
-                bsOptions.noneResultsText = Aspectize.UiExtensions.GetProperty(control, 'NoneResultsText');;
-            }
-            //#endregion
+                bsOptions.header = Aspectize.UiExtensions.GetProperty(control, 'Header');
+                bsOptions.size = Aspectize.UiExtensions.GetProperty(control, 'Size');
 
-            bsOptions.header = Aspectize.UiExtensions.GetProperty(control, 'Header');
-            bsOptions.size = Aspectize.UiExtensions.GetProperty(control, 'Size');
+                updateCurrentProperties();
 
-            updateCurrentProperties();
+                $(control).selectpicker(bsOptions);
 
-            $(control).selectpicker(bsOptions);
+                $(control).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
 
-            $(control).on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                    if (bsOptions.actionsBox) {
 
-                if (bsOptions.actionsBox) {
+                        var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+                        var options = control.options;
 
-                    var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
-                    var options = control.options;
+                        if (selectedMember) {
 
-                    if (selectedMember) {
+                            for (var n = 0; n < options.length; n++) {
 
-                        for (var n = 0; n < options.length; n++) {
+                                var option = options[n];
+                                if (option.aasData) {
 
-                            var option = options[n];
-                            if (option.aasData) {
-
-                                option.aasData.SetField(selectedMember, option.selected);
+                                    option.aasData.SetField(selectedMember, option.selected);
+                                }
                             }
+                        }
+
+                    } else {
+
+                        var option = control.options[clickedIndex];
+                        if (option && option.aasData) {
+                            var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+
+                            if (selectedMember) option.aasData.SetField(selectedMember, isSelected);
                         }
                     }
 
-                } else {
+                    updateSelectedValues();
 
-                    var option = control.options[clickedIndex];
-                    if (option && option.aasData) {
-                        var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+                    var currentData = controlInfo.PropertyBag.CurrentData;
+                    var currentValue = controlInfo.PropertyBag.CurrentValue;
+                    var currentDisplay = controlInfo.PropertyBag.CurrentDisplay;
 
-                        if (selectedMember) option.aasData.SetField(selectedMember, isSelected);
-                    }
-                }
+                    Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentDisplay: currentDisplay, CurrentData: currentData });
 
-                updateSelectedValues();
+                });
 
-                var currentData = controlInfo.PropertyBag.CurrentData;
-                var currentValue = controlInfo.PropertyBag.CurrentValue;
-                var currentDisplay = controlInfo.PropertyBag.CurrentDisplay;
+                document.getElementById(control.id).parentNode.classList.add('form-control');
+                initCalled = true;
 
-                Aspectize.UiExtensions.Notify(control, 'SelectedValueChanged', { CurrentValue: currentValue, CurrentDisplay: currentDisplay, CurrentData: currentData });
-
-            });
-
-            document.getElementById(control.id).parentNode.classList.add('form-control');
-            initCalled = true;
-
-            }, 10);
+            }, 0);
 
         };
 
         controlInfo.RemoveOptions = function (control) {
-            if (initCalled) {
+            var dControl =$(control);
+            if (dControl.selectpicker) {
                 initCalled = false;
 
-                $(control).selectpicker('destroy');
-                $(control).empty();
+                dControl.selectpicker('destroy');
+                dControl.empty();
             }
         };
 
@@ -265,6 +266,29 @@ Global.BootstrapSelectBuilder = {
 
             return selectedData;
         };
+
+        controlInfo.SetAllSelection = function (value) {
+
+            var isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
+            if (isMultiValuedList) {
+
+                var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
+
+                if (selectedMember) {
+
+                    var options = control.options;
+                    for (var n = 0; n < options.length; n++) {
+
+                        var option = options[n];
+                        if (option.aasData) {
+
+                            option.aasData.SetField(selectedMember, !!value);
+                        }
+                    }
+                    //$(control).selectpicker(value ? 'selectAll' : 'deselectAll');
+                }
+            }
+        }
 
         controlInfo.ChangeOption = function (control, value, newDisplay, newDisplayClass) {
 
