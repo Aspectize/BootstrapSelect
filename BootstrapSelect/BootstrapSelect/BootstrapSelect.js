@@ -86,7 +86,7 @@ Global.BootstrapSelectBuilder = {
             var option = new Option(display, value, false, isSelected);
             option.id = control.id + '-' + value;
 
-            $(control).append(option);
+            control.add(option);
 
             return option;
         };
@@ -266,29 +266,6 @@ Global.BootstrapSelectBuilder = {
 
             return selectedData;
         };
-
-        controlInfo.SetAllSelection = function (value) {
-
-            var isMultiValuedList = Aspectize.UiExtensions.GetProperty(control, 'Multiple');
-            if (isMultiValuedList) {
-
-                var selectedMember = Aspectize.UiExtensions.GetProperty(control, 'SelectedMember');
-
-                if (selectedMember) {
-
-                    var options = control.options;
-                    for (var n = 0; n < options.length; n++) {
-
-                        var option = options[n];
-                        if (option.aasData) {
-
-                            option.aasData.SetField(selectedMember, !!value);
-                        }
-                    }
-                    //$(control).selectpicker(value ? 'selectAll' : 'deselectAll');
-                }
-            }
-        }
 
         controlInfo.ChangeOption = function (control, value, newDisplay, newDisplayClass) {
 
